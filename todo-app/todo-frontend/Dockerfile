@@ -2,11 +2,15 @@ FROM node:20 AS build-stage
 
 WORKDIR /usr/src/app
 
-COPY . .
-
-ENV VITE_BACKEND_URL="http://localhost:3000"
+COPY package.json package-lock.json ./
 
 RUN npm ci
+
+COPY . .
+
+RUN npm run test
+
+ENV VITE_BACKEND_URL="http://localhost:3000"
 
 RUN npm run build
 
