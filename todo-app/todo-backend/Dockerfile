@@ -2,11 +2,11 @@ FROM node:20
 
 WORKDIR /usr/src/app
 
-COPY --chown=node:node . .
+COPY package*.json ./
 
 RUN npm ci
 
-ENV DEBUG=playground:*
+COPY . .
 
 USER node
 
