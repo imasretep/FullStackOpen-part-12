@@ -1,10 +1,11 @@
-const app = require("express")();
-const port = 3000;
+import express, { json } from 'express';
+import cors from 'cors';
+import lightsRoutes from './routes/lights.js';
 
-app.get("/", (req, res) => {
-  res.send("Hello, world!");
-});
+const app = express();
+app.use(cors());
+app.use(json());
 
-app.listen(port, () => {
-  console.log(`Listening port: ${port}`);
-});
+app.use('/', lightsRoutes);
+
+export default app;

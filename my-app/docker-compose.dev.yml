@@ -1,0 +1,32 @@
+services:
+  nginx:
+    image: nginx:1.20.1
+    volumes:
+      - ./nginx.dev.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - 8080:80
+    container_name: reverse-proxy
+    depends_on:
+      - lights-frontend
+      - lights-backend
+
+  lights-frontend:
+    image: lights-frontend
+    build:
+      context: ./frontend
+      dockerfile: dev.Dockerfile
+    volumes:
+      - ./frontend/:/usr/src/app
+    environment:
+      - VITE_BACKEND_URL=http://lights-backend:3001
+    container_name: lights-frontend
+
+
+  lights-backend:
+    image: lights-backend
+    build:
+      context: ./backend
+      dockerfile: dev.Dockerfile
+    volumes:
+      - ./backend/:/usr/src/app
+    container_name: lights-backend

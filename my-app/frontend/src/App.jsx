@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { LightBulbIcon } from "@heroicons/react/24/solid";
 import { LightBulbIcon as LightBulbOutlined } from "@heroicons/react/24/outline";
@@ -9,19 +9,44 @@ const App = () => {
   const [counter, setCounter] = useState(0);
   const [dateTime, setDateTime] = useState(null);
 
-  const handleClick = () => {
-    setAnimating(true);
-    setTimeout(() => {
-      setLights((prev) => !prev);
-      if (!lights) {
-        const times = counter + 1;
-        const date = new Date();
-        setDateTime(date.toTimeString());
-        setCounter(times);
+  const handleClick = async () => {
+  setAnimating(true);
+  setTimeout(async () => {
+    const newLights = !lights;
+    setLights(newLights);
+
+    if (newLights) {
+      try {
+        const res = await fetch("/api/toggle", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ on: true }),
+        });
+
+        const data = await res.json();
+        setCounter(data.counter);
+        setDateTime(new Date(data.lastTime).toLocaleTimeString());
+      } catch (err) {
+        console.error("Error toggling light:", err);
       }
-      setAnimating(false);
-    }, 500);
-  };
+    }
+
+    setAnimating(false);
+  }, 500);
+};
+
+useEffect(() => {
+  fetch("/api/status")
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.lastTime) {
+        setDateTime(new Date(data.lastTime).toLocaleTimeString());
+      }
+      setCounter(data.counter);
+    });
+}, []);
 
   return (
     <div
