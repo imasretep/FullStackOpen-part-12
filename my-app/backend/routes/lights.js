@@ -4,15 +4,20 @@ import db from '../db/index.js';
 const router = express.Router();
 
 router.post('/toggle', (req, res) => {
+  console.log('BODY:', req.body);
   const { on } = req.body;
 
   if (on) {
     const timestamp = new Date().toISOString();
-    db.run('INSERT INTO light_logs (timestamp) VALUES (?)', [timestamp], function (err) {
+    db.run('INSERT INTO light_logs (timestamp) VALUES (?)', [timestamp], function(err) {
       if (err) return res.status(500).json({ error: 'DB error' });
 
       db.get('SELECT COUNT(*) AS count FROM light_logs', (err, row) => {
-        if (err) return res.status(500).json({ error: 'DB error' });
+
+        if (err) {
+          console.error('POST error:', err);
+          return res.status(500).json({ error: 'DB error', details: err.message });
+        }
 
         res.json({
           counter: row.count,
